@@ -1,0 +1,1 @@
+# global-copilot-instructions-general
