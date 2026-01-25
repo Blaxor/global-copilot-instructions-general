@@ -4,6 +4,14 @@ This file contains general instructions for GitHub Copilot to improve code gener
 
 ## General Guidelines
 
+### Interactions
+- Keep easy to follow and concise comunication with the developer
+- Try to break fix/implementation into small parts
+- After each part, comunicate with the developer as following:
+  - very short what was done
+  - what is the exact next thing that needs to be done.
+- Double check that no other flow is affected by the changes, if there might be, discuss it with the develoepr.
+
 ### Code Quality
 - Write clean, maintainable, and well-documented code
 - Follow the principle of least surprise
