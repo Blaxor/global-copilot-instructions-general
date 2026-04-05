@@ -5,7 +5,7 @@ This script sets up shared GitHub Copilot skills for a project.
 .DESCRIPTION
 - Clones or updates the skills repo: https://github.com/Blaxor/global-copilot-instructions-general.git
 - Creates symlinks to the "Skill" folder for:
-    • VS Code: .github\copilot\skills
+    • VS Code: .github\skills
     • IntelliJ IDEA: docs\copilot\skills
 - Automatically updates existing links if needed
 - Safe to run multiple times
@@ -22,62 +22,52 @@ $REPO_URL = "https://github.com/Blaxor/global-copilot-instructions-general.git"
 $BASE_DIR = ".copilot-shared\global"
 $SKILL_SOURCE = "$BASE_DIR\Skill"
 
-$VS_LINK = ".github\copilot\skills"
-$IJ_LINK = "docs\copilot\skills"
+$VS_LINK = ".github\skills"
+$IJ_LINK = "docs\skills"
 
 Write-Host "🚀 Setting up shared Copilot skills..."
 
 # Clone or update repo
-if (!(Test-Path "$BASE_DIR\.git"))
-{
+if (!(Test-Path "$BASE_DIR\.git")) {
     Write-Host "[INFO] Cloning repository..."
     New-Item -ItemType Directory -Force -Path ".copilot-shared" | Out-Null
     git clone $REPO_URL $BASE_DIR
 }
-else
-{
+else {
     Write-Host "[INFO] Updating repository..."
     git -C $BASE_DIR pull --rebase
 }
 # Ensure folders exist
-New-Item -ItemType Directory -Force -Path ".github\copilot" | Out-Null
-New-Item -ItemType Directory -Force -Path "docs\copilot" | Out-Null
+New-Item -ItemType Directory -Force -Path ".github" | Out-Null
+New-Item -ItemType Directory -Force -Path "docs" | Out-Null
 
-function Update-Link($linkPath, $targetPath)
-{
-    if (Test-Path $linkPath)
-    {
+function Update-Link($linkPath, $targetPath) {
+    if (Test-Path $linkPath) {
         $item = Get-Item $linkPath -Force
 
-        if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)
-        {
+        if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
             $currentTarget = (Get-Item $linkPath).Target
 
-            if ($currentTarget -eq $targetPath)
-            {
+            if ($currentTarget -eq $targetPath) {
                 Write-Host "[OK] Link OK: $linkPath"
                 return
             }
-            else
-            {
+            else {
                 Write-Host "[FIX] Fixing wrong link: $linkPath"
                 Remove-Item $linkPath -Force
             }
         }
-        else
-        {
+        else {
             Write-Host "[WARN] Exists but not a symlink, replacing: $linkPath"
             Remove-Item $linkPath -Recurse -Force
         }
     }
 
     Write-Host "[LINK] Creating link: $linkPath"
-    try
-    {
+    try {
         New-Item -ItemType SymbolicLink -Path $linkPath -Target $targetPath | Out-Null
     }
-    catch
-    {
+    catch {
         Write-Host "[JUNC] Symlink failed, using junction instead..."
         cmd /c mklink /J $linkPath $targetPath | Out-Null
     }
